@@ -1,0 +1,143 @@
+import React, { useContext, useState } from 'react'
+import { AuthContext } from '../../context/AuthProvider'
+
+const CreateTask = () => {
+
+    const [userData, setUserData] = useContext(AuthContext)
+
+    const [taskTitle, setTaskTitle] = useState('')
+    const [taskDescription, setTaskDescription] = useState('')
+    const [taskDate, setTaskDate] = useState('')
+    const [asignTo, setAsignTo] = useState('')
+    const [category, setCategory] = useState('')
+
+    const [taskStatus, setTaskStatus] = useState('New Task')
+
+    const submitHandler = async (e) => {
+        e.preventDefault()
+
+        // 1. Find user by name to get _id
+        const employee = userData.find(emp => emp.name === asignTo)
+        if (!employee) {
+            alert("No employee found with this name")
+            return
+        }
+
+        const taskData = {
+            title: taskTitle,
+            description: taskDescription,
+            taskDate: taskDate,
+            category: category,
+            assignedTo: employee._id,
+            status: taskStatus
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            })
+
+            const res = await response.json()
+            if (response.ok) {
+                // Reset form
+                setTaskTitle('')
+                setCategory('')
+                setAsignTo('')
+                setTaskDate('')
+                setTaskDescription('')
+                
+                // Refresh global context to show new task (or if we had a dedicated fetch, call it)
+                const globalResp = await fetch('http://localhost:5000/api/users')
+                const globalData = await globalResp.json()
+                setUserData(globalData)
+            } else {
+                alert(res.message || "Failed to create task")
+            }
+        } catch (error) {
+            console.error(error)
+            alert("Server Error")
+        }
+    }
+
+    return (
+        <div className='p-5 bg-white/60 backdrop-blur-lg mt-5 rounded-2xl shadow-lg border border-white/50'>
+            <form onSubmit={(e) => {
+                submitHandler(e)
+            }}
+                className='flex flex-col md:flex-row flex-wrap w-full items-start justify-between'
+            >
+                <div className='w-full md:w-1/2'>
+                    <div>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Task Title</h3>
+                        <input
+                            value={taskTitle}
+                            onChange={(e) => {
+                                setTaskTitle(e.target.value)
+                            }}
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4' type="text" placeholder='Make a UI design'
+                        />
+                    </div>
+                    <div>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Date</h3>
+                        <input
+                            value={taskDate}
+                            onChange={(e) => {
+                                setTaskDate(e.target.value)
+                            }}
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4' type="date" />
+                    </div>
+                    <div>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Asign to</h3>
+                        <input
+                            value={asignTo}
+                            onChange={(e) => {
+                                setAsignTo(e.target.value)
+                            }}
+                            list="employee-names"
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4' type="text" placeholder='employee name' />
+                        <datalist id="employee-names">
+                            {userData && userData.map((emp, idx) => (
+                                <option key={idx} value={emp.name} />
+                            ))}
+                        </datalist>
+                    </div>
+                    <div>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Category</h3>
+                        <input
+                            value={category}
+                            onChange={(e) => {
+                                setCategory(e.target.value)
+                            }}
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4' type="text" placeholder='design, dev, etc' />
+                    </div>
+                    <div>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Task Status</h3>
+                        <select 
+                            value={taskStatus}
+                            onChange={(e) => setTaskStatus(e.target.value)}
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4'>
+                            <option value="New Task">New Task</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Failed">Failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className='w-full md:w-2/5 flex flex-col items-start mt-4 md:mt-0'>
+                    <h3 className='text-sm text-gray-600 mb-0.5'>Description</h3>
+                    <textarea value={taskDescription}
+                        onChange={(e) => {
+                            setTaskDescription(e.target.value)
+                        }} className='w-full h-44 text-sm py-2 px-4 rounded outline-none bg-transparent border-[1px] border-gray-400' name="" id=""></textarea>
+                    <button className='bg-emerald-500 py-3 hover:bg-emerald-600 px-5 rounded text-sm mt-4 w-full text-white'>Create Task</button>
+                </div>
+
+            </form>
+        </div>
+    )
+}
+
+export default CreateTask
