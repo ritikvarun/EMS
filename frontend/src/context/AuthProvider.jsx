@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react'
+import { BASE_URL } from '../utils/apiConfig'
 
 export const AuthContext = createContext()
 
@@ -8,7 +9,7 @@ const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/users');
+                const response = await fetch(`${BASE_URL}/api/users`);
                 const data = await response.json();
                 setUserData(data);
             } catch (error) {

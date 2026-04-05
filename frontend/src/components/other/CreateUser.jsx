@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import { BASE_URL } from '../../utils/apiConfig'
 
 const CreateUser = () => {
     const [userData, setUserData] = useContext(AuthContext)
@@ -12,7 +13,7 @@ const CreateUser = () => {
         e.preventDefault()
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch(`${BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -28,7 +29,7 @@ const CreateUser = () => {
                 setPassword('')
                 
                 // Refresh global context
-                const globalResp = await fetch('http://localhost:5000/api/users')
+                const globalResp = await fetch(`${BASE_URL}/api/users`)
                 const globalData = await globalResp.json()
                 setUserData(globalData)
             } else {

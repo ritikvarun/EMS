@@ -4,6 +4,7 @@ import NewTask from './NewTask'
 import CompleteTask from './CompleteTask'
 import FailedTask from './FailedTask'
 import { AuthContext } from '../../context/AuthProvider'
+import { BASE_URL } from '../../utils/apiConfig'
 
 const TaskList = ({ data, updateEmployeeData }) => {
     const [userData, setUserData] = useContext(AuthContext)
@@ -14,13 +15,13 @@ const TaskList = ({ data, updateEmployeeData }) => {
 
     const refreshData = async () => {
         // Refresh global AuthContext (Admin list)
-        const globalResp = await fetch('http://localhost:5000/api/users')
+        const globalResp = await fetch(`${BASE_URL}/api/users`)
         const globalData = await globalResp.json()
         setUserData(globalData)
 
         // Refresh current employee dashboard data
         const currentUserId = data.id || data._id;
-        const userResp = await fetch(`http://localhost:5000/api/users/${currentUserId}`); // Needs to be fixed or updated
+        const userResp = await fetch(`${BASE_URL}/api/users/${currentUserId}`); // Needs to be fixed or updated
         // Actually, fetching from our new /api/users and finding the current one is better
         const currentEmp = globalData.find(e => e._id === currentUserId || e.id === currentUserId)
         if (currentEmp) {
@@ -30,7 +31,7 @@ const TaskList = ({ data, updateEmployeeData }) => {
 
     const handleDelete = async (id) => {
         try {
-            const resp = await fetch(`http://localhost:5000/api/tasks/${id}`, { method: 'DELETE' })
+            const resp = await fetch(`${BASE_URL}/api/tasks/${id}`, { method: 'DELETE' })
             if (resp.ok) {
                 refreshData()
             }
@@ -41,7 +42,7 @@ const TaskList = ({ data, updateEmployeeData }) => {
 
     const handleUpdateTaskStatus = async (id, newStatus) => {
         try {
-            const resp = await fetch(`http://localhost:5000/api/tasks/${id}/status`, {
+            const resp = await fetch(`${BASE_URL}/api/tasks/${id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })

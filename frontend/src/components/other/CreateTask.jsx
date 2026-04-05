@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import { BASE_URL } from '../../utils/apiConfig'
 
 const CreateTask = () => {
 
@@ -33,7 +34,7 @@ const CreateTask = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/tasks', {
+            const response = await fetch(`${BASE_URL}/api/tasks`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(taskData)
@@ -49,7 +50,7 @@ const CreateTask = () => {
                 setTaskDescription('')
                 
                 // Refresh global context to show new task (or if we had a dedicated fetch, call it)
-                const globalResp = await fetch('http://localhost:5000/api/users')
+                const globalResp = await fetch(`${BASE_URL}/api/users`)
                 const globalData = await globalResp.json()
                 setUserData(globalData)
             } else {

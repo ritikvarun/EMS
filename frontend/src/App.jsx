@@ -3,6 +3,7 @@ import Login from './components/Auth/Login'
 import EmployeeDashboard from './components/Dashboard/EmployeeDashboard'
 import AdminDashboard from './components/Dashboard/AdminDashboard'
 import { AuthContext } from './context/AuthProvider'
+import { BASE_URL } from './utils/apiConfig'
 
 const App = () => {
 
@@ -24,7 +25,7 @@ const App = () => {
 
   const handleLogin = async (email, password) => {
     try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
+        const response = await fetch(`${BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
