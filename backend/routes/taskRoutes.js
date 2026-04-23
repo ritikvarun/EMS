@@ -1,6 +1,6 @@
 const express = require('express');
 const Task = require('../models/task');
-const { sendTaskStatusEmail } = require('../utils/mailer');
+const { sendTaskStatusEmail, sendTaskAssignmentEmail } = require('../utils/mailer');
 const router = express.Router();
 
 // @route   GET /api/tasks
@@ -25,6 +25,19 @@ router.post('/', async (req, res) => {
     const newTask = new Task({ title, description, taskDate, assignedDate, category, assignedTo });
     
     await newTask.save();
+
+    // Notify employee via email
+    const populatedTask = await Task.findById(newTask._id).populate('assignedTo', 'name email');
+    if (populatedTask && populatedTask.assignedTo?.email) {
+      sendTaskAssignmentEmail({
+        task: populatedTask,
+        employeeEmail: populatedTask.assignedTo.email,
+        employeeName: populatedTask.assignedTo.name,
+      }).catch((mailErr) => {
+        console.error('Task assignment email failed:', mailErr.message);
+      });
+    }
+
     res.status(201).json(newTask);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });

@@ -63,6 +63,52 @@ const sendTaskStatusEmail = async ({ task, oldStatus, newStatus, employeeName })
   return { skipped: false };
 };
 
+const sendTaskAssignmentEmail = async ({ task, employeeEmail, employeeName }) => {
+  if (!hasMailerConfig()) {
+    console.warn('Email skipped: SMTP_USER/SMTP_PASS not configured');
+    return { skipped: true, reason: 'missing_env' };
+  }
+
+  const transporter = getTransporter();
+  const subject = `New Task Assigned: ${task?.title || 'Untitled Task'}`;
+  
+  const text = [
+    `Hello ${employeeName || 'Employee'},`,
+    '',
+    'A new task has been assigned to you.',
+    '',
+    `Title: ${task?.title || 'N/A'}`,
+    `Description: ${task?.description || 'N/A'}`,
+    `Category: ${task?.category || 'N/A'}`,
+    `Deadline: ${task?.taskDate || 'N/A'}`,
+    '',
+    'Please log in to your dashboard to view and accept the task.',
+  ].join('\n');
+
+  const html = `
+    <h2>New Task Assigned</h2>
+    <p>Hello ${employeeName || 'Employee'},</p>
+    <p>A new task has been assigned to you.</p>
+    <p><strong>Title:</strong> ${task?.title || 'N/A'}</p>
+    <p><strong>Description:</strong> ${task?.description || 'N/A'}</p>
+    <p><strong>Category:</strong> ${task?.category || 'N/A'}</p>
+    <p><strong>Deadline:</strong> ${task?.taskDate || 'N/A'}</p>
+    <br>
+    <p>Please log in to your dashboard to view and accept the task.</p>
+  `;
+
+  await transporter.sendMail({
+    from: `"EMS Notifications" <${process.env.SMTP_USER}>`,
+    to: employeeEmail,
+    subject,
+    text,
+    html,
+  });
+
+  return { skipped: false };
+};
+
 module.exports = {
   sendTaskStatusEmail,
+  sendTaskAssignmentEmail,
 };
