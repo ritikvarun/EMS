@@ -22,6 +22,32 @@ const App = () => {
 
   },[])
 
+  // Sync loggedInUserData to localStorage whenever it changes
+  useEffect(() => {
+    if (loggedInUserData) {
+      const stored = localStorage.getItem('loggedInUser')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        parsed.data = loggedInUserData
+        localStorage.setItem('loggedInUser', JSON.stringify(parsed))
+      }
+    }
+  }, [loggedInUserData])
+
+  // Refresh loggedInUserData from the server data (userData from AuthContext)
+  useEffect(() => {
+    if (userData && user === 'employee' && loggedInUserData) {
+      const currentUserId = loggedInUserData._id || loggedInUserData.id;
+      const updatedUser = userData.find(u => u._id === currentUserId || u.id === currentUserId);
+      if (updatedUser) {
+        // Only update if something actually changed (to avoid infinite loops or unnecessary re-renders)
+        if (JSON.stringify(updatedUser) !== JSON.stringify(loggedInUserData)) {
+          setLoggedInUserData(updatedUser);
+        }
+      }
+    }
+  }, [userData, user, loggedInUserData])
+
 
   const handleLogin = async (email, password) => {
     try {
