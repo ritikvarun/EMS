@@ -9,11 +9,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const users = await User.find({ role: 'Employee' }).select('-password').lean();
-    
+
     // For each user, find their tasks
     const usersWithTasks = await Promise.all(users.map(async (user) => {
       const tasks = await Task.find({ assignedTo: user._id });
-      
+
       // Calculate counts like the frontend expects
       const taskCounts = {
         newTask: tasks.filter(t => t.status === 'New Task').length,
@@ -61,7 +61,7 @@ router.put('/:id', async (req, res) => {
       }
 
       const updatedUser = await user.save();
-      
+
       res.json({
         id: updatedUser._id,
         name: updatedUser.name,
