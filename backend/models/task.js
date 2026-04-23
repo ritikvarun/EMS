@@ -30,6 +30,11 @@ const taskSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Task date is required'],
     },
+    assignedDate: {
+      type: String,
+      required: [true, 'Assigned date is required'],
+      default: () => new Date().toISOString().split('T')[0],
+    },
   },
   {
     timestamps: true,

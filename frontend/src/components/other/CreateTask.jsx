@@ -8,11 +8,11 @@ const CreateTask = () => {
 
     const [taskTitle, setTaskTitle] = useState('')
     const [taskDescription, setTaskDescription] = useState('')
+    const todayDate = new Date().toISOString().split('T')[0]
+    const [assignedDate, setAssignedDate] = useState(todayDate)
     const [taskDate, setTaskDate] = useState('')
     const [asignTo, setAsignTo] = useState('')
     const [category, setCategory] = useState('')
-
-    const [taskStatus, setTaskStatus] = useState('New Task')
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -27,10 +27,11 @@ const CreateTask = () => {
         const taskData = {
             title: taskTitle,
             description: taskDescription,
+            assignedDate: assignedDate,
             taskDate: taskDate,
             category: category,
             assignedTo: employee._id,
-            status: taskStatus
+            status: 'New Task'
         }
 
         try {
@@ -46,6 +47,7 @@ const CreateTask = () => {
                 setTaskTitle('')
                 setCategory('')
                 setAsignTo('')
+                setAssignedDate(todayDate)
                 setTaskDate('')
                 setTaskDescription('')
                 
@@ -81,12 +83,23 @@ const CreateTask = () => {
                         />
                     </div>
                     <div>
-                        <h3 className='text-sm text-gray-600 mb-0.5'>Date</h3>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Task Given Date</h3>
+                        <input
+                            value={assignedDate}
+                            onChange={(e) => {
+                                setAssignedDate(e.target.value)
+                            }}
+                            max={taskDate || undefined}
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4' type="date" />
+                    </div>
+                    <div>
+                        <h3 className='text-sm text-gray-600 mb-0.5'>Deadline Date</h3>
                         <input
                             value={taskDate}
                             onChange={(e) => {
                                 setTaskDate(e.target.value)
                             }}
+                            min={assignedDate || todayDate}
                             className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4' type="date" />
                     </div>
                     <div>
@@ -115,15 +128,12 @@ const CreateTask = () => {
                     </div>
                     <div>
                         <h3 className='text-sm text-gray-600 mb-0.5'>Task Status</h3>
-                        <select 
-                            value={taskStatus}
-                            onChange={(e) => setTaskStatus(e.target.value)}
-                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-transparent border-[1px] border-gray-400 mb-4'>
-                            <option value="New Task">New Task</option>
-                            <option value="Accepted">Accepted</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Failed">Failed</option>
-                        </select>
+                        <input
+                            value="New Task"
+                            readOnly
+                            className='text-sm py-1 px-2 w-full md:w-4/5 rounded outline-none bg-gray-100 border-[1px] border-gray-400 mb-4'
+                            type="text"
+                        />
                     </div>
                 </div>
 
