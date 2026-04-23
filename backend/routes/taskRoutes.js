@@ -1,5 +1,6 @@
 const express = require('express');
 const Task = require('../models/task');
+const { sendTaskStatusEmail } = require('../utils/mailer');
 const router = express.Router();
 
 // @route   GET /api/tasks
@@ -35,11 +36,27 @@ router.post('/', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
-    const task = await Task.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    
-    if (!task) {
+    const previousTask = await Task.findById(req.params.id).populate('assignedTo', 'name email');
+    if (!previousTask) {
       return res.status(404).json({ message: 'Task not found' });
     }
+
+    const oldStatus = previousTask.status;
+    const task = await Task.findByIdAndUpdate(req.params.id, { status }, { new: true }).populate('assignedTo', 'name email');
+    
+    const shouldNotifyStatuses = ['Accepted', 'Completed', 'Failed'];
+    const hasStatusChanged = oldStatus !== status;
+    if (task && hasStatusChanged && shouldNotifyStatuses.includes(status)) {
+      sendTaskStatusEmail({
+        task,
+        oldStatus,
+        newStatus: status,
+        employeeName: task.assignedTo?.name,
+      }).catch((mailErr) => {
+        console.error('Task status email failed:', mailErr.message);
+      });
+    }
+
     res.status(200).json(task);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
