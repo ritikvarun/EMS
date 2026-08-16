@@ -2,6 +2,10 @@
 
 A modern, responsive, client-side **Employee Management System** built with **React, Vite, Tailwind CSS, and LocalStorage**. Manage tasks, employees, and administrative workflows seamlessly without the need for an external backend or database.
 
+<p align="center">
+  <img src="assets/preview.png" alt="Employee Management System Preview" width="720" style="border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.12);" />
+</p>
+
 ---
 
 ## ✨ Features
@@ -99,9 +103,12 @@ The optimized production build will be generated in `frontend/dist`.
 
 ```
 EMS/
+├── assets/
+│   └── preview.png            # UI screenshot
 ├── frontend/
 │   ├── public/
 │   │   ├── _redirects         # Netlify SPA redirect rules
+│   │   ├── preview.png
 │   │   └── vite.svg
 │   ├── src/
 │   │   ├── components/
